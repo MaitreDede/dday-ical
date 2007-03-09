@@ -1,0 +1,266 @@
+<!--------------------------------------------------------------------------->  
+<!--                           INTRODUCTION                                
+
+ The Code Project article submission template (HTML version)
+
+Using this template will help us post your article sooner. To use, just 
+follow the 3 easy steps below:
+ 
+     1. Fill in the article description details
+     2. Add links to your images and downloads
+     3. Include the main article text
+
+That's all there is to it! All formatting will be done by our submission
+scripts and style sheets. 
+
+-->  
+<!--------------------------------------------------------------------------->  
+<!--                        IGNORE THIS SECTION                            -->
+<html>
+<head>
+<title>The Code Project</title>
+<Style>
+BODY, P, TD { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt }
+H2,H3,H4,H5 { color: #ff9900; font-weight: bold; }
+H2 { font-size: 13pt; }
+H3 { font-size: 12pt; }
+H4 { font-size: 10pt; color: black; }
+PRE { BACKGROUND-COLOR: #FBEDBB; FONT-FAMILY: "Courier New", Courier, mono; WHITE-SPACE: pre; }
+CODE { COLOR: #990000; FONT-FAMILY: "Courier New", Courier, mono; }
+</style>
+<link rel="stylesheet" type=text/css href="http://www.codeproject.com/styles/global.css">
+</head>
+<body bgcolor="#FFFFFF" color=#000000>
+<!--------------------------------------------------------------------------->  
+
+
+<!-------------------------------     STEP 1      --------------------------->
+<!--  Fill in the details (CodeProject will reformat this section for you) -->
+
+<pre>
+Title:       Adding iCalendar support to your program - Part 1
+Author:      Douglas Day
+Email:       doug@ddaysoftware.com
+Environment: C#, .NET 2.0
+Keywords:    Calendar, iCalendar, iCal, RFC2445, C#, .NET, Event, Todo
+Level:       Beginner
+Description: This article describes the steps to load and view iCalendars in your program by using the DDay.iCal library.
+Section      C# Libraries
+SubSection   General
+</pre>
+
+<!-------------------------------     STEP 2      --------------------------->
+<!--  Include download and sample image information.                       --> 
+
+<ul class=download>
+<li><a href="iCalExample_src.zip">Download source - 197 Kb</a></li>
+</ul>
+
+<p><img src="screenshot.jpg" alt="Screenshot" /></p>
+
+
+<!-------------------------------     STEP 3      --------------------------->
+<!--  Add the article text. Please use simple formatting (<h2>, <p> etc)   --> 
+
+<h2>Introduction</h2>
+
+<p>
+    This article describes how to load and view iCalendars by using the DDay.iCal library.    
+    I will cover more advanced topics, such as creating, editing, and serializing iCalendars
+    in my next article.
+</p>
+<p>
+    In this article, I will walk you through creating a console application that will
+    load and display upcoming events to the user. I've also included an example project
+    that demonstrates how to add this kind of support to an ASP.NET web application.
+</p>
+
+<h2>Background</h2>
+
+<p>
+    Many programmers have worked with adding some kind of calendar support to an application
+    - from displaying upcoming events on a web site, to allowing personalized calendars,
+    with the ability to alter them.
+</p>
+<p> 
+    So, thousands of programmers, all adding calendar support to their applications.  So, what's
+    the problem with that?  The historical answer is that no (or very few) programmers followed
+    any kind of standard to implement their calendars.  So, if you needed to accomplish anything
+    else with the calendar that your original application didn't support, you'd have to write it
+    by hand.
+</p>
+<p>
+    Also, these ad-hoc calendars are only viewable from the application that wrote them. What if you
+    want to allow for recurrences in your calendar, so an event can recur "every 2nd-to-last Sunday
+    of the month?"  What if you want to publish your calendar, so others can subscribe to it, and view
+    it from the calendar program they prefer? What if you want to display and manipulate calendars from
+    multiple sources, including sources that you may not have control over?
+</p>
+<p>
+    These are some of the problems the iCalendar standard solves for us.  If you didn't already know --
+    iCalendar is a W3C recommendation known as RFC 2445.  You can find it <a href="http://www.w3.org/2002/12/cal/rfc2445">here</a>.
+</p>
+
+<h2>Using the code</h2>
+<p>
+    To begin, open Visual Studio 2005, and create a "Windows Console Application" project.  Then, if you
+    haven't already done so, <a href="http://sf.net/projects/dday-ical">download the latest binary version</a>
+    of DDay.iCal from SourceForge.net.  Once you've done that, you simply need to add a reference to
+    <code>DDay.iCal.dll</code> from your project (i.e. click "Add Reference" from the "Project" menu).
+</p>
+
+<p>
+    Then, add the following to the top of the <code>Program.cs</code> file:
+<pre>
+using DDay.iCal;
+using DDay.iCal.Components;
+</pre>
+</p>
+
+<p>
+    You're now ready to load your first iCalendar!  There are multiple ways you can load iCalendars, ranging
+    from simply loading the file from your local filesystem, to loading from a WebDAV or CalDAV store, to
+    loading from a database.  The possibilities are endless; however, in this article, we'll focus on simply
+    loading the file from your local filesystem.  Add the following code to your <code>Main()</code> method
+    (of course, replacing the path with the actual path to your iCalendar file).
+</p>
+<pre>
+// Load the iCalendar from file
+iCalendar iCal = iCalendar.LoadFromFile(@"path\to\your\icalendar.ics");
+</pre>
+<p>
+    Congratulations, you've loaded your iCalendar, and are ready to work with it!  For now, let's display
+    the events that occur today:
+</p>
+<pre>
+//
+// Evaluate recurring events to determine if they will recur today
+//
+iCal.Evaluate(DateTime.Today, DateTime.Today.AddDays(1));
+
+Console.WriteLine("Today's Events:");
+
+// Iterate through each event we have to check if it occurs today
+foreach(Event evt in iCal.Events)
+{
+    if (evt.OccursOn(DateTime.Today))
+        Console.WriteLine(evt.Summary + ": " + evt.Start.Local.ToShortTimeString());        
+}
+</pre>
+<p>
+    That's it!  Let me explain each item above for clarity.  The <code>Evaluate()</code> method is
+    used to evaluate recurring events to see if they occur in a given period of time.  For example,
+    let's say you have an event that recurs daily ("Work", for example).  In iCalendars, these are
+    represented by a single event, with a recurrence pattern.  To determine if the event
+    will occur for any given day, that day needs to be <code>Evaluate</code>d.
+</p>
+<p>
+    Then, we check each event that's contained in our iCalendar to see if it occurs today (using the <code>OccursOn()</code> method).
+    If it does, we output a short description of the event.
+</p>
+<p>
+    OK, now we've displayed all the events that occur today.  Let's display all of the upcoming events
+    that will occur within the next 7 days:
+</p>
+<pre>
+//
+// Evaluate recurring events to determine if they will occur within the next 7 days
+//
+iCal.Evaluate(DateTime.Today, DateTime.Today.AddDays(7));
+
+Console.WriteLine("Upcoming Events:");
+
+// Start with tomorrow
+DateTime testDate = DateTime.Today.AddDays(1);
+while (testDate < DateTime.Today.AddDays(7))
+{
+    foreach(Event evt in iCal.Events)
+    {
+        if (evt.OccursOn(testDate))
+            Console.WriteLine(evt.Summary + ": " + evt.Start.Local.ToShortTimeString());
+    }
+
+    testDate = testDate.AddDays(1);
+}
+</pre>
+<p>
+    This code does essentially the same thing as "Today's Events", except it works with
+    more than 1 day at a time.
+</p>
+
+<h2>Final Code</h2>
+<p>
+    Here's the final result of <code>Program.cs</code>:
+</p>
+<pre>
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+// Required namespaces
+using DDay.iCal;
+using DDay.iCal.Components;
+
+namespace ConsoleApplication1
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Load the iCalendar from file
+            iCalendar iCal = iCalendar.LoadFromFile(@"Business.ics");
+
+            //
+            // Evaluate recurring events to determine if they will recur today
+            //
+            iCal.Evaluate(DateTime.Today, DateTime.Today.AddDays(1));
+
+            Console.WriteLine("Today's Events:");
+
+            // Iterate through each event we have to check if it occurs today
+            foreach (Event evt in iCal.Events)
+            {
+                if (evt.OccursOn(DateTime.Today))
+                    Console.WriteLine(evt.Summary + ": " + evt.Start.Local.ToShortTimeString());
+            }
+
+            //
+            // Evaluate recurring events to determine if they will occur within the next 7 days
+            //
+            iCal.Evaluate(DateTime.Today, DateTime.Today.AddDays(7));
+
+            Console.WriteLine("Upcoming Events:");
+
+            // Start with tomorrow
+            DateTime testDate = DateTime.Today.AddDays(1);
+            while (testDate < DateTime.Today.AddDays(7))
+            {
+                foreach (Event evt in iCal.Events)
+                {
+                    if (evt.OccursOn(testDate))
+                        Console.WriteLine(evt.Summary + ": " + evt.Start.Local.ToShortTimeString());
+                }
+
+                testDate = testDate.AddDays(1);
+            }            
+        }
+    }
+}
+</pre>
+
+<h2>Points of Interest</h2>
+
+<p>For more information, visit the DDay.iCal homepage at <a href="http://www.ddaysoftware.com">ddaysoftware.com</a>.</p>
+
+<h2>History</h2>
+
+<p>
+<pre>
+03/09/2007 - Posted
+</pre>    
+</p>
+
+
+<!-------------------------------    That's it!   --------------------------->
+</body>
+</html>
