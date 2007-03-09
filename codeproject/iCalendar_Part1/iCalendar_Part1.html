@@ -111,7 +111,7 @@ SubSection   General
 
 <p>
     Then, add the following to the top of the <code>Program.cs</code> file:
-<pre>
+<pre lang="cs">
 using DDay.iCal;
 using DDay.iCal.Components;
 </pre>
@@ -124,7 +124,7 @@ using DDay.iCal.Components;
     loading the file from your local filesystem.  Add the following code to your <code>Main()</code> method
     (of course, replacing the path with the actual path to your iCalendar file).
 </p>
-<pre>
+<pre lang="cs">
 // Load the iCalendar from file
 iCalendar iCal = iCalendar.LoadFromFile(@"path\to\your\icalendar.ics");
 </pre>
@@ -132,7 +132,7 @@ iCalendar iCal = iCalendar.LoadFromFile(@"path\to\your\icalendar.ics");
     Congratulations, you've loaded your iCalendar, and are ready to work with it!  For now, let's display
     the events that occur today:
 </p>
-<pre>
+<pre lang="cs">
 //
 // Evaluate recurring events to determine if they will recur today
 //
@@ -162,7 +162,7 @@ foreach(Event evt in iCal.Events)
     OK, now we've displayed all the events that occur today.  Let's display all of the upcoming events
     that will occur within the next 7 days:
 </p>
-<pre>
+<pre lang="cs">
 //
 // Evaluate recurring events to determine if they will occur within the next 7 days
 //
@@ -192,7 +192,7 @@ while (testDate < DateTime.Today.AddDays(7))
 <p>
     Here's the final result of <code>Program.cs</code>:
 </p>
-<pre>
+<pre lang="cs">
 using System;
 using System.Collections.Generic;
 using System.Text;
